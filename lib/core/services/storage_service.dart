@@ -1,0 +1,39 @@
+import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:habit_flow/core/constants/storage_keys.dart';
+
+/// Handles Hive initialization and generic key-value storage.
+class StorageService extends GetxService {
+  static StorageService get to => Get.find<StorageService>();
+
+  Box<dynamic>? _habitsBox;
+  Box<dynamic>? _habitLogsBox;
+  Box<dynamic>? _settingsBox;
+
+  Future<StorageService> init() async {
+    await Hive.initFlutter();
+    _habitsBox = await Hive.openBox(StorageKeys.habitsBox);
+    _habitLogsBox = await Hive.openBox(StorageKeys.habitLogsBox);
+    _settingsBox = await Hive.openBox(StorageKeys.settingsBox);
+    return this;
+  }
+
+  Box<dynamic> get habitsBox => _habitsBox!;
+  Box<dynamic> get habitLogsBox => _habitLogsBox!;
+  Box<dynamic> get settingsBox => _settingsBox!;
+
+  // Settings helpers
+  bool get isDarkMode =>
+      _settingsBox?.get(StorageKeys.isDarkMode, defaultValue: false) as bool;
+
+  set isDarkMode(bool value) {
+    _settingsBox?.put(StorageKeys.isDarkMode, value);
+  }
+
+  bool get notificationsEnabled =>
+      _settingsBox?.get(StorageKeys.notificationsEnabled, defaultValue: true) as bool;
+
+  set notificationsEnabled(bool value) {
+    _settingsBox?.put(StorageKeys.notificationsEnabled, value);
+  }
+}
