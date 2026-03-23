@@ -184,6 +184,32 @@ class NotificationService extends GetxService {
     }
   }
 
+  Future<AndroidNotificationChannel> _resolveFocusCompleteChannel() async {
+    final uri = StorageService.to.focusCompleteSoundUri;
+    if (uri.isNotEmpty) {
+      final id = 'focus_complete_custom_${_stableHash(uri)}';
+      final customChannel = AndroidNotificationChannel(
+        id,
+        'Focus complete',
+        description: 'Custom completion sound',
+        importance: Importance.max,
+        playSound: true,
+        sound: UriAndroidNotificationSound(uri),
+        enableVibration: true,
+        vibrationPattern: _kFocusDoneVibration,
+        audioAttributesUsage: AudioAttributesUsage.alarm,
+      );
+
+      final android = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      await android?.createNotificationChannel(customChannel);
+      return customChannel;
+    }
+
+    // Fallback to predefined channels (system default / chime / bell).
+    return _channelForFocusCompleteSound(StorageService.to.focusCompleteSound);
+  }
+
   Future<bool> startFocusForeground({
     required String habitName,
     required DateTime endsAt,
@@ -284,13 +310,13 @@ class NotificationService extends GetxService {
     required int minutesLogged,
   }) async {
     if (kIsWeb) return;
+    if (!StorageService.to.focusCompleteEnabled) return;
     final id = _idForFocusDone(habitId);
     final minsLabel = minutesLogged == 1 ? '1 minute' : '$minutesLogged minutes';
     final collapsedBody = '$habitName • $minsLabel logged';
     final bigText =
         '$habitName\n\nSession complete — $minsLabel logged.\nGreat job staying focused!';
-    final soundId = StorageService.to.focusCompleteSound;
-    final ch = _channelForFocusCompleteSound(soundId);
+    final ch = await _resolveFocusCompleteChannel();
     final details = _buildFocusCompleteNotificationDetails(
       ch: ch,
       collapsedBody: collapsedBody,
@@ -306,10 +332,10 @@ class NotificationService extends GetxService {
     required String habitName,
     required Duration after,
   }) async {
+    if (!StorageService.to.focusCompleteEnabled) return;
     final id = _idForFocusDone(habitId);
     final when = tz.TZDateTime.now(tz.local).add(after);
-    final soundId = StorageService.to.focusCompleteSound;
-    final ch = _channelForFocusCompleteSound(soundId);
+    final ch = await _resolveFocusCompleteChannel();
 
     final collapsedBody = '$habitName • Time\'s up';
     final bigText =
