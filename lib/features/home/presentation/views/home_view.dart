@@ -64,19 +64,17 @@ class HomeView extends GetView<HabitController> {
         title: const Text('HabitFlow'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.bar_chart_rounded),
+            icon: const Icon(Icons.bar_chart_outlined),
             onPressed: () => Get.toNamed(AppRoutes.stats),
           ),
           IconButton(
-            icon: const Icon(Icons.settings_rounded),
+            icon: const Icon(Icons.settings_outlined),
             onPressed: () => Get.toNamed(AppRoutes.settings),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: _GradientExtendedFab(
         onPressed: () => Get.toNamed(AppRoutes.addHabit),
-        icon: const Icon(Icons.add),
-        label: const Text('Add habit'),
       ),
     );
   }
@@ -109,9 +107,9 @@ class _EmptyState extends StatelessWidget {
                     borderRadius: BorderRadius.circular(28),
                   ),
                   child: Icon(
-                    Icons.auto_awesome,
+                    Icons.eco_outlined,
                     size: 48,
-                    color: AppColors.primary.withValues(alpha: 0.8),
+                    color: AppColors.primary.withValues(alpha: 0.85),
                   ),
                 ),
               ),
@@ -135,7 +133,7 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 32),
             FilledButton.icon(
               onPressed: onAdd,
-              icon: const Icon(Icons.add_rounded),
+              icon: const Icon(Icons.add),
               label: const Text('Add habit'),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
@@ -230,7 +228,7 @@ class _HabitTile extends StatelessWidget {
     return Card(
       child: InkWell(
         onTap: onToggle,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -290,12 +288,65 @@ class _HabitTile extends StatelessWidget {
               Checkbox(
                 value: isCompleted,
                 onChanged: (_) => onToggle(),
-                activeColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Primary CTA matching the logo gradient (light) / mint accent (dark).
+class _GradientExtendedFab extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _GradientExtendedFab({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final gradient = isDark
+        ? const LinearGradient(
+            begin: Alignment.bottomLeft,
+            end: Alignment.topRight,
+            colors: <Color>[
+              AppColors.tealMid,
+              AppColors.mint,
+            ],
+          )
+        : AppColors.primaryGradient;
+
+    return Material(
+      elevation: 4,
+      shadowColor: AppColors.tealDeep.withValues(alpha: 0.28),
+      borderRadius: BorderRadius.circular(28),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onPressed,
+        child: Ink(
+          decoration: BoxDecoration(gradient: gradient),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add, color: Colors.white, size: 22),
+                SizedBox(width: 10),
+                Text(
+                  'Add habit',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

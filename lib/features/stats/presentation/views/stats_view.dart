@@ -34,7 +34,7 @@ class StatsView extends GetView<StatsController> {
                           color: AppColors.primary.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.timer_rounded, color: AppColors.primary),
+                        child: const Icon(Icons.timer_outlined, color: AppColors.primary),
                       ),
                       const SizedBox(width: 16),
                       Column(
@@ -119,7 +119,7 @@ class StatsView extends GetView<StatsController> {
                         barRods: [
                           BarChartRodData(
                             toY: e.value.value.toDouble(),
-                            color: AppColors.primary,
+                            gradient: AppColors.chartBarGradient,
                             width: 24,
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
                           ),
@@ -146,7 +146,7 @@ class StatsView extends GetView<StatsController> {
                 padding: const EdgeInsets.all(24),
                 child: Row(
                   children: [
-                    Icon(Icons.local_fire_department_rounded,
+                    Icon(Icons.local_fire_department_outlined,
                         color: Colors.grey.shade400, size: 40),
                     const SizedBox(width: 16),
                     Expanded(

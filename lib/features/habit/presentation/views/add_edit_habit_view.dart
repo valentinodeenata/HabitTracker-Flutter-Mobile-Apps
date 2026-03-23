@@ -145,7 +145,7 @@ class _HabitFormState extends State<_HabitForm> {
                   decoration: const InputDecoration(
                     labelText: 'Habit name',
                     hintText: 'e.g. Read 30 min',
-                    prefixIcon: Icon(Icons.edit_rounded),
+                    prefixIcon: Icon(Icons.edit_outlined),
                   ),
                   validator: (v) =>
                       v == null || v.trim().isEmpty ? 'Enter a name' : null,
@@ -228,7 +228,7 @@ class _HabitFormState extends State<_HabitForm> {
                           ],
                         ),
                         child: selected
-                            ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                            ? const Icon(Icons.check, color: Colors.white, size: 20)
                             : null,
                       ),
                     );
@@ -318,7 +318,7 @@ class _HabitFormState extends State<_HabitForm> {
                       initialValue: _dailyTarget.clamp(1, 10),
                       decoration: const InputDecoration(
                         labelText: 'Daily target',
-                        prefixIcon: Icon(Icons.flag_rounded),
+                        prefixIcon: Icon(Icons.flag_outlined),
                       ),
                       items: List.generate(10, (i) => i + 1)
                           .map((v) => DropdownMenuItem(value: v, child: Text('$v per day')))
@@ -409,7 +409,7 @@ class _HabitFormState extends State<_HabitForm> {
                         if (mounted) setState(() => _isSaving = false);
                       }
                     },
-                    icon: Icon(widget.isEdit ? Icons.check_rounded : Icons.add_rounded),
+                    icon: Icon(widget.isEdit ? Icons.check : Icons.add),
                     label: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       child: _isSaving
