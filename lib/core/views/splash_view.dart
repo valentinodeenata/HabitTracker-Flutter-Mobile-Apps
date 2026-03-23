@@ -58,21 +58,9 @@ class _SplashViewState extends State<SplashView>
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? [
-                    const Color(0xFF1E1B4B),
-                    const Color(0xFF312E81),
-                    const Color(0xFF4C1D95),
-                  ]
-                : [
-                    AppColors.primary.withValues(alpha: 0.08),
-                    AppColors.primary.withValues(alpha: 0.04),
-                    Colors.white,
-                  ],
-          ),
+          gradient: isDark
+              ? AppColors.surfaceGradientDark
+              : AppColors.surfaceGradientLight,
         ),
         child: SafeArea(
           child: Column(
@@ -82,23 +70,25 @@ class _SplashViewState extends State<SplashView>
               ScaleTransition(
                 scale: _scaleAnimation,
                 child: Container(
-                  width: 120,
-                  height: 120,
+                  width: 128,
+                  height: 128,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(32),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                        blurRadius: 24,
-                        spreadRadius: 2,
+                        color: AppColors.tealDeep.withValues(alpha: 0.12),
+                        blurRadius: 32,
+                        spreadRadius: 0,
+                        offset: const Offset(0, 12),
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.auto_awesome,
-                    size: 56,
-                    color: AppColors.primary,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(32),
+                    child: Image.asset(
+                      'assets/app_icon.png',
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -108,8 +98,11 @@ class _SplashViewState extends State<SplashView>
                 child: Text(
                   'HabitFlow',
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.6,
+                        color: isDark
+                            ? AppColors.onSurfaceDark
+                            : AppColors.tealDeep,
                       ),
                 ),
               ),
@@ -120,6 +113,7 @@ class _SplashViewState extends State<SplashView>
                   'Build habits. Stay focused.',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w400,
                       ),
                 ),
               ),
@@ -132,9 +126,9 @@ class _SplashViewState extends State<SplashView>
                     width: 32,
                     height: 32,
                     child: CircularProgressIndicator(
-                      strokeWidth: 3,
+                      strokeWidth: 2.5,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        AppColors.primary.withValues(alpha: 0.8),
+                        isDark ? AppColors.mint : AppColors.primary,
                       ),
                     ),
                   ),

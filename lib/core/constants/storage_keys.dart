@@ -7,4 +7,6 @@ abstract class StorageKeys {
   static const String habitLogs = 'habit_logs_list';
   static const String isDarkMode = 'is_dark_mode';
   static const String notificationsEnabled = 'notifications_enabled';
+  /// `default` | `chime` | `bell` — Android raw resources + channel mapping.
+  static const String focusCompleteSound = 'focus_complete_sound';
 }

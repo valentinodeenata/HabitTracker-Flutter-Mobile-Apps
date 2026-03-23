@@ -27,13 +27,12 @@ class SettingsView extends GetView<SettingsController> {
               child: Column(
                 children: [
                   _SettingsTile(
-                    icon: Icons.dark_mode_rounded,
+                    icon: Icons.dark_mode_outlined,
                     title: 'Dark mode',
                     subtitle: 'Use dark theme',
                     trailing: Switch(
                       value: c.isDarkMode,
                       onChanged: c.setDarkMode,
-                      activeTrackColor: AppColors.primary.withValues(alpha: 0.5),
                     ),
                   ),
                 ],
@@ -52,16 +51,77 @@ class SettingsView extends GetView<SettingsController> {
               child: Column(
                 children: [
                   _SettingsTile(
-                    icon: Icons.notifications_rounded,
+                    icon: Icons.notifications_outlined,
                     title: 'Reminders',
                     subtitle: 'Daily habit reminders',
                     trailing: Switch(
                       value: c.notificationsEnabled,
                       onChanged: c.setNotificationsEnabled,
-                      activeTrackColor: AppColors.primary.withValues(alpha: 0.5),
                     ),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Focus complete',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    letterSpacing: 0.5,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 4, 16, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      leading: Icon(
+                        Icons.volume_up_outlined,
+                        color: AppColors.primary.withValues(alpha: 0.9),
+                      ),
+                      title: const Text('Completion sound'),
+                      subtitle: const Text('Played when a focus session ends'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, right: 8, bottom: 8),
+                      child: DropdownButton<String>(
+                        value: c.focusCompleteSound,
+                        isExpanded: true,
+                        borderRadius: BorderRadius.circular(12),
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'default',
+                            child: Text('System default'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'chime',
+                            child: Text('Soft chime (higher)'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'bell',
+                            child: Text('Warm bell (lower)'),
+                          ),
+                        ],
+                        onChanged: (v) {
+                          if (v != null) c.setFocusCompleteSound(v);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                'Applies when a focus session ends. On Android, choose tone here; heads-up style uses your selected channel.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ),
           ],

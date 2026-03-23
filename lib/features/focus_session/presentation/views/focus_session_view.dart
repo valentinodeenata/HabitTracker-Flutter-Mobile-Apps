@@ -12,7 +12,22 @@ class FocusSessionView extends GetView<FocusSessionController> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Scaffold(
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop && controller.isRunning.value) {
+          Future.microtask(() {
+            Get.snackbar(
+              'Focus session running',
+              'Timer continues in the notification. Open Focus again to pause or stop.',
+              snackPosition: SnackPosition.BOTTOM,
+              margin: const EdgeInsets.all(16),
+              duration: const Duration(seconds: 3),
+            );
+          });
+        }
+      },
+      child: Scaffold(
       backgroundColor: colorScheme.surface.withValues(alpha: 0.98),
       appBar: AppBar(
         title: const Text('Focus mode'),
@@ -69,7 +84,7 @@ class FocusSessionView extends GetView<FocusSessionController> {
                         ),
                         const SizedBox(height: 24),
                         _MetricRow(
-                          icon: Icons.local_fire_department_rounded,
+                          icon: Icons.local_fire_department_outlined,
                           iconColor: Colors.orange,
                           label: 'Elapsed',
                           value: '${controller.elapsedMinutes} min',
@@ -106,41 +121,38 @@ class FocusSessionView extends GetView<FocusSessionController> {
 
                     const SizedBox(height: 24),
 
-                    // Big character + rings under status
+                    // Illustration + single progress ring (ring sits outside the art, no overlap)
                     Expanded(
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           final size = constraints.biggest.shortestSide;
-                          final base = size * 0.9;
+                          final base = size * 0.92;
+                          final inner = base * 0.74;
+                          final stroke = (base * 0.038).clamp(3.0, 8.0);
                           return Center(
                             child: SizedBox(
                               width: base,
                               height: base,
                               child: Stack(
                                 alignment: Alignment.center,
+                                clipBehavior: Clip.none,
                                 children: [
-                                  _Ring(
-                                    size: base,
-                                    color: colorScheme.primary.withValues(alpha: 0.22),
-                                    value: controller.progress,
-                                  ),
-                                  _Ring(
-                                    size: base * 0.78,
-                                    color: Colors.deepOrangeAccent.withValues(alpha: 0.24),
-                                    value: controller.progress * 0.9,
-                                    rotateTurns: 0.15,
-                                  ),
-                                  _Ring(
-                                    size: base * 0.6,
-                                    color: Colors.purpleAccent.withValues(alpha: 0.26),
-                                    value: controller.progress * 0.8,
-                                    rotateTurns: -0.2,
+                                  SizedBox.expand(
+                                    child: CircularProgressIndicator(
+                                      value: controller.progress.clamp(0.0, 1.0),
+                                      strokeWidth: stroke,
+                                      strokeCap: StrokeCap.round,
+                                      backgroundColor:
+                                          colorScheme.outline.withValues(alpha: 0.14),
+                                      color: colorScheme.primary.withValues(alpha: 0.95),
+                                    ),
                                   ),
                                   _HabitCharacter(
                                     color: h.color,
                                     icon: h.icon,
-                                    isActive:
-                                        controller.isRunning.value && !controller.isPaused.value,
+                                    isActive: controller.isRunning.value &&
+                                        !controller.isPaused.value,
+                                    dimension: inner,
                                   ),
                                 ],
                               ),
@@ -284,30 +296,12 @@ class FocusSessionView extends GetView<FocusSessionController> {
           ],
         );
       }),
+      ),
     );
   }
 
   void _confirmExit(BuildContext context) {
-    if (controller.isRunning.value) {
-      Get.dialog(
-        AlertDialog(
-          title: const Text('End focus session?'),
-          content: const Text('Progress will not be saved.'),
-          actions: [
-            TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-            FilledButton(
-              onPressed: () {
-                Get.back();
-                controller.stop();
-              },
-              child: const Text('End'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      Get.back();
-    }
+    Get.back();
   }
 }
 
@@ -323,6 +317,7 @@ class _DurationSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = const [15, 25, 45];
+    final isPresetSelected = items.contains(selectedMinutes);
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
@@ -333,19 +328,127 @@ class _DurationSelector extends StatelessWidget {
         ),
       ),
       child: Row(
-        children: items.map((min) {
-          final isSelected = selectedMinutes == min;
-          return Expanded(
+        children: [
+          ...items.map((min) {
+            final isSelected = selectedMinutes == min;
+            return Expanded(
+              child: _DurationPill(
+                label: '$min min',
+                isSelected: isSelected,
+                onTap: () => onSelected(min),
+              ),
+            );
+          }),
+          Expanded(
             child: _DurationPill(
-              label: '$min min',
-              isSelected: isSelected,
-              onTap: () => onSelected(min),
+              label: isPresetSelected ? 'Custom' : '$selectedMinutes min',
+              isSelected: !isPresetSelected,
+              onTap: () async {
+                final chosen = await _showCustomMinutesPicker(
+                  context,
+                  initialMinutes: selectedMinutes,
+                );
+                if (chosen != null) onSelected(chosen);
+              },
             ),
-          );
-        }).toList(),
+          ),
+        ],
       ),
     );
   }
+}
+
+Future<int?> _showCustomMinutesPicker(
+  BuildContext context, {
+  required int initialMinutes,
+}) async {
+  final cs = Theme.of(context).colorScheme;
+  int temp = initialMinutes.clamp(1, 180);
+  return await showModalBottomSheet<int>(
+    context: context,
+    showDragHandle: true,
+    useSafeArea: true,
+    backgroundColor: cs.surface,
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Custom duration',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Pick any duration from 1 to 180 minutes.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(height: 18),
+            StatefulBuilder(
+              builder: (context, setState) {
+                return Column(
+                  children: [
+                    Row(
+                      children: [
+                        IconButton.filledTonal(
+                          onPressed: temp > 1
+                              ? () => setState(() => temp = (temp - 1).clamp(1, 180))
+                              : null,
+                          icon: const Icon(Icons.remove),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                '$temp min',
+                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -0.5,
+                                    ),
+                              ),
+                              Slider(
+                                value: temp.toDouble(),
+                                min: 1,
+                                max: 180,
+                                divisions: 179,
+                                onChanged: (v) => setState(() => temp = v.round()),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        IconButton.filledTonal(
+                          onPressed: temp < 180
+                              ? () => setState(() => temp = (temp + 1).clamp(1, 180))
+                              : null,
+                          icon: const Icon(Icons.add),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: () => Navigator.of(context).pop(temp),
+                        child: const Text('Use this duration'),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 class _DurationPill extends StatefulWidget {
@@ -414,7 +517,17 @@ class _DurationPillState extends State<_DurationPill> {
                     letterSpacing: 0.2,
                     color: fg.withValues(alpha: widget.isSelected ? 1 : 0.9),
                   ),
-              child: Text(widget.label),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: Text(
+                    widget.label,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -480,46 +593,17 @@ class _MetricRow extends StatelessWidget {
   }
 }
 
-class _Ring extends StatelessWidget {
-  final double size;
-  final Color color;
-  final double value;
-  final double rotateTurns;
-
-  const _Ring({
-    required this.size,
-    required this.color,
-    required this.value,
-    this.rotateTurns = 0,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Transform.rotate(
-        angle: rotateTurns * 3.14159 * 2,
-        child: CircularProgressIndicator(
-          value: value.clamp(0.0, 1.0),
-          strokeWidth: size * 0.08,
-          backgroundColor: Colors.transparent,
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-        ),
-      ),
-    );
-  }
-}
-
 class _HabitCharacter extends StatelessWidget {
   final Color color;
   final IconData icon;
   final bool isActive;
+  final double dimension;
 
   const _HabitCharacter({
     required this.color,
     required this.icon,
     required this.isActive,
+    this.dimension = 260,
   });
 
   @override
@@ -529,27 +613,31 @@ class _HabitCharacter extends StatelessWidget {
     final category = habit?.category;
     final asset =
         category == null ? 'assets/animations/have_fun.json' : lottieForCategory(category);
+    final radius = (dimension * 0.154).clamp(20.0, 44.0);
 
-    return FittedBox(
-      fit: BoxFit.contain,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 260,
-            height: 260,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(40),
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        width: dimension,
+        height: dimension,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.16),
+          borderRadius: BorderRadius.circular(radius),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
             ),
-            child: Lottie.asset(
-              asset,
-              repeat: true,
-              animate: isActive,
-              fit: BoxFit.contain,
-            ),
-          ),
-        ],
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Lottie.asset(
+          asset,
+          repeat: true,
+          animate: isActive,
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }

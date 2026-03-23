@@ -36,4 +36,18 @@ class StorageService extends GetxService {
   set notificationsEnabled(bool value) {
     _settingsBox?.put(StorageKeys.notificationsEnabled, value);
   }
+
+  /// Focus completion tone: `default`, `chime`, or `bell`.
+  String get focusCompleteSound {
+    final v =
+        _settingsBox?.get(StorageKeys.focusCompleteSound, defaultValue: 'default')
+            as String;
+    if (v == 'chime' || v == 'bell') return v;
+    return 'default';
+  }
+
+  set focusCompleteSound(String value) {
+    final v = (value == 'chime' || value == 'bell') ? value : 'default';
+    _settingsBox?.put(StorageKeys.focusCompleteSound, v);
+  }
 }

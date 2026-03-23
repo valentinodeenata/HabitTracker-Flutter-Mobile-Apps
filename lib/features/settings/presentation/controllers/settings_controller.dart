@@ -7,6 +7,7 @@ class SettingsController extends GetxController {
 
   bool get isDarkMode => _storage.isDarkMode;
   bool get notificationsEnabled => _storage.notificationsEnabled;
+  String get focusCompleteSound => _storage.focusCompleteSound;
 
   void setDarkMode(bool value) {
     _storage.isDarkMode = value;
@@ -16,6 +17,11 @@ class SettingsController extends GetxController {
 
   void setNotificationsEnabled(bool value) {
     _storage.notificationsEnabled = value;
+    update();
+  }
+
+  void setFocusCompleteSound(String value) {
+    _storage.focusCompleteSound = value;
     update();
   }
 }

@@ -8,6 +8,9 @@ class FocusSessionBinding extends Bindings {
     if (!Get.isRegistered<HabitController>()) {
       Get.put(HabitController(), permanent: true);
     }
-    Get.lazyPut<FocusSessionController>(() => FocusSessionController());
+    if (!Get.isRegistered<FocusSessionController>()) {
+      Get.put(FocusSessionController(), permanent: true);
+    }
+    Get.find<FocusSessionController>().syncRouteArguments(Get.arguments);
   }
 }
