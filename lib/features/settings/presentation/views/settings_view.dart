@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:habit_flow/core/theme/app_colors.dart';
+import 'package:habit_flow/core/services/notification_service.dart';
+import 'package:habit_flow/core/services/system_ringtone_picker.dart';
 import 'package:habit_flow/features/settings/presentation/controllers/settings_controller.dart';
 
 class SettingsView extends GetView<SettingsController> {
@@ -73,41 +75,123 @@ class SettingsView extends GetView<SettingsController> {
             const SizedBox(height: 12),
             Card(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 4, 16, 12),
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ListTile(
-                      leading: Icon(
+                    SwitchListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 6),
+                      secondary: Icon(
                         Icons.volume_up_outlined,
                         color: AppColors.primary.withValues(alpha: 0.9),
                       ),
-                      title: const Text('Completion sound'),
-                      subtitle: const Text('Played when a focus session ends'),
+                      title: const Text('Aktif'),
+                      subtitle: const Text('Play sound & heads-up saat selesai'),
+                      value: c.focusCompleteEnabled,
+                      onChanged: c.setFocusCompleteEnabled,
                     ),
+                    const Divider(height: 1),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Sound',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 6),
+                      leading: Icon(
+                        Icons.music_note_outlined,
+                        color: AppColors.primary.withValues(alpha: 0.9),
+                      ),
+                      title: Text(
+                        c.focusCompleteSoundUri.isEmpty
+                            ? 'System default'
+                            : (c.focusCompleteSoundTitle.trim().isEmpty ||
+                                    c.focusCompleteSoundTitle
+                                        .trim()
+                                        .contains('content://') ||
+                                    c.focusCompleteSoundTitle
+                                        .trim()
+                                        .contains('/') ||
+                                    c.focusCompleteSoundTitle.trim().length > 28
+                                ? 'Custom sound'
+                                : c.focusCompleteSoundTitle.trim()),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: const Text('Choose alarm / notification tone'),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: c.focusCompleteEnabled
+                                ? () async {
+                                    final picked = await SystemRingtonePicker
+                                        .pickAlarmSound();
+                                    if (picked == null) return;
+                                    c.setFocusCompleteSoundUri(
+                                      picked.uri,
+                                      picked.title,
+                                    );
+                                  }
+                                : null,
+                            icon: const Icon(Icons.music_note_rounded),
+                            label: const Text('Pick sound'),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.tonalIcon(
+                        onPressed: c.focusCompleteEnabled
+                            ? c.useSystemDefaultFocusCompleteSound
+                            : null,
+                        icon: const Icon(Icons.volume_up_rounded),
+                        label: const Text('Use system default'),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: c.focusCompleteEnabled
+                            ? () async {
+                                await NotificationService.to
+                                    .showFocusCompleteNow(
+                                  habitId: 'test',
+                                  habitName: 'HabitFlow',
+                                  minutesLogged: 1,
+                                );
+                              }
+                            : null,
+                        icon: const Icon(Icons.play_arrow_rounded),
+                        label: const Text('Test sound'),
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
                     Padding(
-                      padding: const EdgeInsets.only(left: 16, right: 8, bottom: 8),
-                      child: DropdownButton<String>(
-                        value: c.focusCompleteSound,
-                        isExpanded: true,
-                        borderRadius: BorderRadius.circular(12),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'default',
-                            child: Text('System default'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'chime',
-                            child: Text('Soft chime (higher)'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'bell',
-                            child: Text('Warm bell (lower)'),
-                          ),
-                        ],
-                        onChanged: (v) {
-                          if (v != null) c.setFocusCompleteSound(v);
-                        },
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: Text(
+                        'Volume mengikuti pengaturan Alarm Android (system).',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color:
+                                  Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                       ),
                     ),
                   ],

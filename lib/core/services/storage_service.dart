@@ -50,4 +50,31 @@ class StorageService extends GetxService {
     final v = (value == 'chime' || value == 'bell') ? value : 'default';
     _settingsBox?.put(StorageKeys.focusCompleteSound, v);
   }
+
+  bool get focusCompleteEnabled =>
+      _settingsBox?.get(StorageKeys.focusCompleteEnabled, defaultValue: true)
+          as bool;
+
+  set focusCompleteEnabled(bool value) {
+    _settingsBox?.put(StorageKeys.focusCompleteEnabled, value);
+  }
+
+  /// Full system picker: selected ringtone URI for Android.
+  ///
+  /// Empty string means system default.
+  String get focusCompleteSoundUri =>
+      _settingsBox?.get(StorageKeys.focusCompleteSoundUri,
+              defaultValue: '') as String;
+
+  set focusCompleteSoundUri(String value) {
+    _settingsBox?.put(StorageKeys.focusCompleteSoundUri, value);
+  }
+
+  String get focusCompleteSoundTitle =>
+      _settingsBox?.get(StorageKeys.focusCompleteSoundTitle,
+          defaultValue: 'System default') as String;
+
+  set focusCompleteSoundTitle(String value) {
+    _settingsBox?.put(StorageKeys.focusCompleteSoundTitle, value);
+  }
 }
