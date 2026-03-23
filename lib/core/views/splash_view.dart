@@ -95,15 +95,25 @@ class _SplashViewState extends State<SplashView>
               const SizedBox(height: 32),
               FadeTransition(
                 opacity: _fadeAnimation,
-                child: Text(
-                  'HabitFlow',
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.6,
-                        color: isDark
-                            ? AppColors.onSurfaceDark
-                            : AppColors.tealDeep,
-                      ),
+                child: ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    begin: Alignment.bottomLeft,
+                    end: Alignment.topRight,
+                    colors: <Color>[
+                      AppColors.tealDeep,
+                      AppColors.mint,
+                    ],
+                  ).createShader(
+                    Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                  ),
+                  child: Text(
+                    'HabitFlow',
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.6,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),

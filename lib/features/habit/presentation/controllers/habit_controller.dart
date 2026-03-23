@@ -23,7 +23,6 @@ class HabitController extends GetxController {
   }
 
   void loadToday() {
-    loadHabits();
     final today = app_utils.todayKey();
     final weekday = app_utils.weekdayToday();
     todayHabits.value =
@@ -33,6 +32,40 @@ class HabitController extends GetxController {
     for (final l in logs) {
       todayLogs[l.habitId] = l;
     }
+  }
+
+  /// Drag & drop reordering for today's list only.
+  ///
+  /// We update the in-memory [habits] order so toggling completion won't
+  /// reset the list ordering.
+  void reorderTodayHabits(int oldIndex, int newIndex) {
+    if (oldIndex == newIndex) return;
+
+    final weekday = app_utils.weekdayToday();
+    final byId = {for (final h in habits) h.id: h};
+
+    final currentToday = todayHabits.toList();
+    if (oldIndex < 0 ||
+        oldIndex >= currentToday.length ||
+        newIndex < 0 ||
+        newIndex >= currentToday.length) {
+      return;
+    }
+
+    final ids = currentToday.map((e) => e.id).toList();
+    final moved = ids.removeAt(oldIndex);
+    ids.insert(newIndex, moved);
+
+    var pointer = 0;
+    final newHabits = habits.map((h) {
+      if (!h.isScheduledOn(weekday)) return h;
+      final nextId = ids[pointer++];
+      return byId[nextId] ?? h;
+    }).toList();
+
+    habits.value = newHabits;
+    // Recompute today view + logs from updated in-memory order.
+    loadToday();
   }
 
   bool isCompletedToday(String habitId) {

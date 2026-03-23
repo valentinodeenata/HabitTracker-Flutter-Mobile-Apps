@@ -4,12 +4,81 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_flow/core/theme/app_colors.dart';
 
 abstract class AppTheme {
-  static ThemeData get light => ThemeData(
+  static ThemeData get light {
+    final spaceGroteskFontFamily = GoogleFonts.spaceGrotesk().fontFamily;
+
+    final baseTextTheme = GoogleFonts.interTextTheme().apply(
+      bodyColor: AppColors.onSurfaceLight,
+      displayColor: AppColors.onSurfaceLight,
+    );
+
+    final textTheme = baseTextTheme.copyWith(
+      displayLarge: baseTextTheme.displayLarge?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.8,
+      ),
+      displayMedium: baseTextTheme.displayMedium?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.6,
+      ),
+      headlineLarge: baseTextTheme.headlineLarge?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.5,
+      ),
+      headlineMedium: baseTextTheme.headlineMedium?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.3,
+      ),
+      titleLarge: baseTextTheme.titleLarge?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.4,
+      ),
+      titleMedium: baseTextTheme.titleMedium?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.2,
+      ),
+      titleSmall: baseTextTheme.titleSmall?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.1,
+      ),
+      labelLarge: baseTextTheme.labelLarge?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.1,
+      ),
+      labelMedium: baseTextTheme.labelMedium?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.2,
+      ),
+      bodyLarge: baseTextTheme.bodyLarge?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w500,
+        letterSpacing: -0.1,
+      ),
+      bodyMedium: baseTextTheme.bodyMedium?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w400,
+        letterSpacing: -0.05,
+      ),
+      bodySmall: baseTextTheme.bodySmall?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+      ),
+    );
+
+    return ThemeData(
         useMaterial3: true,
-        textTheme: GoogleFonts.interTextTheme().apply(
-          bodyColor: AppColors.onSurfaceLight,
-          displayColor: AppColors.onSurfaceLight,
-        ),
+        fontFamily: spaceGroteskFontFamily,
+        textTheme: textTheme,
         colorScheme: const ColorScheme(
           brightness: Brightness.light,
           primary: AppColors.primary,
@@ -44,7 +113,7 @@ abstract class AppTheme {
           backgroundColor: AppColors.surfaceLight,
           foregroundColor: AppColors.onSurfaceLight,
           systemOverlayStyle: SystemUiOverlayStyle.dark,
-          titleTextStyle: GoogleFonts.inter(
+          titleTextStyle: GoogleFonts.spaceGrotesk(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.2,
@@ -166,15 +235,85 @@ abstract class AppTheme {
           thickness: 1,
         ),
       );
+  }
 
-  static ThemeData get dark => ThemeData(
+  static ThemeData get dark {
+    final spaceGroteskFontFamily = GoogleFonts.spaceGrotesk().fontFamily;
+
+    final baseTextTheme = GoogleFonts.interTextTheme(
+      ThemeData(brightness: Brightness.dark, useMaterial3: true).textTheme,
+    ).apply(
+      bodyColor: AppColors.onSurfaceDark,
+      displayColor: AppColors.onSurfaceDark,
+    );
+
+    final textTheme = baseTextTheme.copyWith(
+      displayLarge: baseTextTheme.displayLarge?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.8,
+      ),
+      displayMedium: baseTextTheme.displayMedium?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.6,
+      ),
+      headlineLarge: baseTextTheme.headlineLarge?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.5,
+      ),
+      headlineMedium: baseTextTheme.headlineMedium?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.3,
+      ),
+      titleLarge: baseTextTheme.titleLarge?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.4,
+      ),
+      titleMedium: baseTextTheme.titleMedium?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.2,
+      ),
+      titleSmall: baseTextTheme.titleSmall?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.1,
+      ),
+      labelLarge: baseTextTheme.labelLarge?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.1,
+      ),
+      labelMedium: baseTextTheme.labelMedium?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.2,
+      ),
+      bodyLarge: baseTextTheme.bodyLarge?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w500,
+        letterSpacing: -0.1,
+      ),
+      bodyMedium: baseTextTheme.bodyMedium?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w400,
+        letterSpacing: -0.05,
+      ),
+      bodySmall: baseTextTheme.bodySmall?.copyWith(
+        fontFamily: spaceGroteskFontFamily,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+      ),
+    );
+
+    return ThemeData(
         useMaterial3: true,
-        textTheme: GoogleFonts.interTextTheme(
-          ThemeData(brightness: Brightness.dark, useMaterial3: true).textTheme,
-        ).apply(
-          bodyColor: AppColors.onSurfaceDark,
-          displayColor: AppColors.onSurfaceDark,
-        ),
+        fontFamily: spaceGroteskFontFamily,
+        textTheme: textTheme,
         colorScheme: const ColorScheme(
           brightness: Brightness.dark,
           primary: AppColors.mint,
@@ -209,7 +348,7 @@ abstract class AppTheme {
           backgroundColor: AppColors.surfaceDark,
           foregroundColor: AppColors.onSurfaceDark,
           systemOverlayStyle: SystemUiOverlayStyle.light,
-          titleTextStyle: GoogleFonts.inter(
+          titleTextStyle: GoogleFonts.spaceGrotesk(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.2,
@@ -331,4 +470,5 @@ abstract class AppTheme {
           thickness: 1,
         ),
       );
+  }
 }

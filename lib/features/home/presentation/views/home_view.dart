@@ -19,25 +19,31 @@ class HomeView extends GetView<HabitController> {
             .where((h) => controller.isCompletedToday(h.id))
             .length;
         final total = controller.todayHabits.length;
-        return CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-                child: _ProgressCard(
-                  completed: completed,
-                  total: total,
-                ),
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+              child: _ProgressCard(
+                completed: completed,
+                total: total,
               ),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final habit = controller.todayHabits[index];
-                    return Padding(
+            Expanded(
+              child: ReorderableListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: controller.todayHabits.length,
+                buildDefaultDragHandles: true,
+                onReorder: (oldIndex, newIndex) {
+                  // When moving down, the target index shifts after removal.
+                  final adjustedNewIndex =
+                      newIndex > oldIndex ? newIndex - 1 : newIndex;
+                  controller.reorderTodayHabits(oldIndex, adjustedNewIndex);
+                },
+                itemBuilder: (context, index) {
+                  final habit = controller.todayHabits[index];
+                  return KeyedSubtree(
+                    key: ValueKey(habit.id),
+                    child: Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _HabitTile(
                         habit: habit,
@@ -48,15 +54,16 @@ class HomeView extends GetView<HabitController> {
                           AppRoutes.focusSession,
                           arguments: habit,
                         ),
-                        onEdit: () => Get.toNamed(AppRoutes.editHabit, arguments: habit),
+                        onEdit: () => Get.toNamed(
+                          AppRoutes.editHabit,
+                          arguments: habit,
+                        ),
                       ),
-                    );
-                  },
-                  childCount: controller.todayHabits.length,
-                ),
+                    ),
+                  );
+                },
               ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],
         );
       }),
